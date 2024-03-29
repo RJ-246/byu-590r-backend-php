@@ -14,7 +14,7 @@ class MovieController extends BaseController
      */
     public function index()
     {
-        $movies = Movie::get();
+        $movies = Movie::with('genre', 'director', 'actors')->get();
         foreach($movies as $movie) {
             $movie->picture = $this->getS3Url($movie->picture);
         }
@@ -76,7 +76,7 @@ class MovieController extends BaseController
         if(isset($movie->picture)){
             $movie->picture = $this->getS3Url($movie->picture);
         }
-        $success['movie'] = $movie;
+        $success['movie'] = $movie->load('genre', 'director', 'actors');
         return $this->sendResponse($success, 'Movie succesfully created!');
     }
 

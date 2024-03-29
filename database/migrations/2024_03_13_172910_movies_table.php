@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::dropIfExists('movies');
         Schema::create('movies', function (Blueprint $table) {
             $table->id();
-            // $table->string('');
+            $table->integer('genre_id')->default(1);
+            $table->integer('director_id')->default(1);
             $table->string('title')->unique();
             $table->string('picture');
             $table->string('description');
