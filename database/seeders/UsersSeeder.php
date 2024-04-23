@@ -22,6 +22,14 @@ class UsersSeeder extends Seeder
                 'password' => bcrypt("strongPassword"),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now()
+            ],
+            [
+                'name' => "John Christiansen",
+                'email' => 'johnc@test.com',
+                'email_verified_at' => null,
+                'password' => bcrypt("strongPassword"),
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now()
             ]
             ];
 
