@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->integer('movie_id');
             $table->integer('actor_id');
+            $table->timestamps();
         });
     }
 

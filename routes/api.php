@@ -3,6 +3,8 @@
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\MovieController;
+use App\Http\Controllers\API\DirectorController;
+use App\Http\Controllers\API\ActorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,4 +45,9 @@ Route::middleware('auth:sanctum')->group( function () {
     Route::controller(MovieController::class)->group(function(){
         Route::post('movies/{id}/update_movie_picture', 'updateMoviePicture');
     });
+
+    Route::resource('directors', DirectorController::class);
+
+    Route::resource('actors', ActorController::class);
+
     });

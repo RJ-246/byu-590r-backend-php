@@ -44,7 +44,9 @@ class MovieController extends BaseController
             'title' => 'required',
             'description' => 'required',
             'picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
-            'year_released' => 'required|integer|min:1888'
+            'year_released' => 'required|integer|min:1888',
+            'director_id' => 'required|integer',
+            'actors.*' => 'required|integer'
         ]);
 
         if($validator->fails()){
@@ -70,8 +72,17 @@ class MovieController extends BaseController
         $movie->title = $request['title'];
         $movie->description = $request['description'];
         $movie->year_released = $request['year_released'];
-
+        $movie->director_id = $request['director_id'];
+        $actors = $request->input('actors', []);
+        $actorsArray = array_map('intval', explode(',', $request->input('actors', '')));
+        \Log::info($actorsArray);
+        \Log::info(gettype($actorsArray));
         $movie->save();
+        $movie = Movie::where('title', $request['title'])->firstOrFail();
+        $movie->actors()->attach($actorsArray);
+        // $movie->actors()->attach($actors);
+        $movie->save();
+
 
         if(isset($movie->picture)){
             $movie->picture = $this->getS3Url($movie->picture);
@@ -100,7 +111,8 @@ class MovieController extends BaseController
         $validator = Validator::make($request->all(), [
             'title' => 'required',
             'description' => 'required',
-            'year_released' => 'required|integer|min:1888'
+            'year_released' => 'required|integer|min:1888',
+            'director_id' => 'required|integer'
         ]);
 
         if($validator->fails()){
@@ -111,7 +123,11 @@ class MovieController extends BaseController
         $movie->title = $request['title'];
         $movie->description = $request['description'];
         $movie->year_released = $request['year_released'];
+        $movie->director_id = $request["director_id"];
+        $movie->actors()->sync($request["actors"]);
         $movie->save();
+
+        $movie = Movie::with('genre', 'director', 'actors')->findOrFail($id);
 
         if(isset($movie->picture)){
             $movie->picture = $this->getS3Url($movie->picture);
@@ -126,6 +142,7 @@ class MovieController extends BaseController
     public function destroy(string $id)
     {
         $movie = Movie::findOrFail($id);
+        $movie->actors()->detach();
         Storage::disk('s3')->delete($movie->picture);
         $movie->delete();
 
@@ -136,7 +153,7 @@ class MovieController extends BaseController
 
     public function updateMoviePicture(Request $request, string $id)
     {
-        $movie = Movie::findOrFail($id);
+        $movie = Movie::with('genre', 'director', 'actors')->findOrFail($id);
         Storage::disk('s3')->delete($movie->picture);
         if ($request->hasFile('picture')) {
             $extension = request()->file('picture')->getClientOriginalExtension();
