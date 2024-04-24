@@ -124,7 +124,16 @@ class MovieController extends BaseController
         $movie->description = $request['description'];
         $movie->year_released = $request['year_released'];
         $movie->director_id = $request["director_id"];
-        $movie->actors()->sync($request["actors"]);
+
+        if (isset($request['actors'][0]['id'])){
+            $actorIds = array_map(function ($actor) {
+                return $actor['id'];
+            }, $request['actors']);
+        } else {
+            $actorIds = $request['actors'];
+        }
+        
+        $movie->actors()->sync($actorIds);
         $movie->save();
 
         $movie = Movie::with('genre', 'director', 'actors')->findOrFail($id);
